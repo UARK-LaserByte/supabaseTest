@@ -2,6 +2,7 @@ import kivy
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from supabase import create_client
@@ -22,6 +23,25 @@ class MyApp(App):
         fetch_button = Button(text='Fetch Data')
         fetch_button.bind(on_release=self.fetch_data)
         layout.add_widget(fetch_button)
+
+        layout = BoxLayout(orientation='vertical')
+
+        # Input fields for data
+        self.first_name_input = TextInput(hint_text="First Name")
+        self.last_name_input = TextInput(hint_text="Last Name")
+        self.codename_input = TextInput(hint_text="Codename")
+
+        layout.add_widget(Label(text="First Name:"))
+        layout.add_widget(self.first_name_input)
+        layout.add_widget(Label(text="Last Name:"))
+        layout.add_widget(self.last_name_input)
+        layout.add_widget(Label(text="Codename:"))
+        layout.add_widget(self.codename_input)
+
+        # Button to insert data
+        insert_button = Button(text='Insert Data')
+        insert_button.bind(on_release=self.insert_data)
+        layout.add_widget(insert_button)
 
         return layout
 
@@ -50,6 +70,27 @@ class MyApp(App):
         for row in data:
             for header in headers:
                 self.table_grid.add_widget(Label(text=str(row[header])))
+
+    def insert_data(self, instance):
+    # Replace 'your-table-name' with the name of your Supabase table
+        table_name = 'player'
+
+    # Retrieve data from the input fields
+        first_name = self.first_name_input.text
+        last_name = self.last_name_input.text
+        codename = self.codename_input.text
+
+    # Define the data to be inserted
+        data_to_insert = [{"first_name": first_name, "last_name": last_name, "codename": codename}]
+
+    # Insert data into the table
+        response, error = supabase.table(table_name).upsert(data_to_insert, returning="minimal")
+
+    if error:
+        print(f"Error: {error}")
+    else:
+        print("Data inserted successfully")
+
 
 if __name__ == '__main__':
     MyApp().run()
